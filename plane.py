@@ -7,7 +7,7 @@ import enemy
 
 from pygame.locals import *
 
-def add_samll_enemies(group1, group2, num):
+def add_small_enemies(group1, group2, num):
     for i in range(num):
         e1 = enemy.SmallEnemy(bg_size)
         group1.add(e1)
@@ -48,6 +48,8 @@ screen = pygame.display.set_mode(bg_size)
 pygame.display.set_caption("2021雷霆出击 V1.0 明德学院信息系计科18 碧空战将 ")
 
 background = pygame.image.load("images/background.png").convert()
+bg1_top = 0
+bg2_top = -700
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -109,7 +111,7 @@ enemies = pygame.sprite.Group()
 
 #生成敌方小型飞机
 small_enemies = pygame.sprite.Group()
-add_samll_enemies(small_enemies, enemies, 15)
+add_small_enemies(small_enemies, enemies, 15)
 
 #生成普通子弹
 bullet1 = []
@@ -137,15 +139,17 @@ is_Triple_Tap = True
 clock =  pygame.time.Clock()
 
 def main():
-    global  bullet1_index, bullet2_index, delay
+    global  bullet1_index, bullet2_index, delay, bg1_top, bg2_top
 
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
-                sys.exit()
 
-        screen.blit(background, (0, 0))
+        bg1_top = (bg1_top + 1) if bg1_top <= 700 else -700
+        bg2_top = (bg2_top + 1) if bg2_top <= 700 else -700
+        screen.blit(background, (0, bg1_top))
+        screen.blit(background, (0, bg2_top))
 
         if life_num and not paused:
             #检测用户的键盘操作
