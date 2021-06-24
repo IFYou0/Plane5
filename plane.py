@@ -7,6 +7,7 @@ import enemy
 import supply
 
 from pygame.locals import *
+from random import  *
 
 def add_small_enemies(group1, group2, num):
     for i in range(num):
@@ -354,7 +355,7 @@ delay = 100
 bullet_supply = supply.Bullet_Supply(bg_size)
 bomb_supply = supply.Bomb_Supply(bg_size)
 SUPPLY_TIME = USEREVENT
-pygame.time.set_timer(SUPPLY_TIME, 30 * 1000)
+pygame.time.set_timer(SUPPLY_TIME, 3 * 1000)
 
 #超级子弹定时器
 DOUBLE_BULLET_TIME = USEREVENT + 1
@@ -379,7 +380,8 @@ me_destroy_index = 0
 
 def main():
     global bullet1_index, bullet2_index, delay, bg1_top, bg2_top, \
-        bullets, paused, paused_image, level, switch_image
+        bullets, paused, paused_image, level, switch_image, \
+        bomb_num
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -406,6 +408,20 @@ def main():
                         paused_image = resume_nor_image
                     else:
                         paused_image = pause_nor_image
+            elif event.type == KEYDOWN:
+                if event.key == K_SPACE:
+                    if bomb_num:
+                        bomb_num -= 1
+                        bomb_sound.play()
+                        for each in enemies:
+                            if each.rect.bottom > 0:
+                                each.active = False
+            elif event.type == SUPPLY_TIME:
+                supply_sound.play()
+                if choice([True, False]):
+                    bomb_supply.reset()
+                else:
+                    bullet_supply.reset()
             elif event.type == INVINCIBLE_TIME:
                 me.invincible = False
                 pygame.time.set_timer(INVINCIBLE_TIME, 0)
@@ -468,6 +484,16 @@ def main():
                 me.moveLeft()
             if key_pressed[K_d] or key_pressed[K_RIGHT]:
                 me.moveRight()
+
+            #绘制全屏炸弹补给并检测是否获得
+            if bomb_supply.active:
+                bomb_supply.move()
+                screen.blit(bomb_supply.image, bomb_supply.rect)
+                if pygame.sprite.collide_mask(bomb_supply, me):
+                    get_bomb_sound.play()
+                    if bomb_num < 3:
+                        bomb_num += 1
+                    bomb_supply.active = False
 
             #发射子弹
             if not (delay % 10):
